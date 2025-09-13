@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import Background from "@/components/shared/Background";
 
@@ -52,6 +53,8 @@ export default function RootLayout({ children }) {
         <div className="relative z-10">
           {children}
         </div>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
