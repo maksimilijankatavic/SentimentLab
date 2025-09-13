@@ -13,7 +13,7 @@ export default function Header() {
             </div>
 
             <div className="flex items-center">
-                <Link href="https://github.com/maksimilijankatavic">
+                <Link href="https://github.com/maksimilijankatavic/SentimentLab">
                     <Button variant="outline" className="cursor-pointer bg-transparent border-gray-600/30 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500/50 hover:text-white transition-all duration-200">
                     <Image src="/images/github.png" alt="github logo" width={16} height={16} priority={true} />
                     GitHub
