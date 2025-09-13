@@ -17,5 +17,18 @@
 # RoBERTa (Robustly optimized BERT approach)
 **RoBERTa** je napredni transformer-based jezični model temeljen na BERT-u. RoBERTa optimizira BERT-ov pristup učenja prepoznavanja jezika, čineći ga preciznijim i sposobnijim u analizi sentimenta. Prije svega, RoBERTa je trenirana na puno većoj količini podataka (čak 10 puta većoj). Uz to, RoBERTa za razliku od BERT-a ne koristi next sentence prediction iz razloga što su istraživanja pokazala da s NSP-em ili bez njega nema veće promjene performansi. Također, RoBERTa koristi puno veće batch-eve od BERT-a. Uz to, BERT koristi fiksan postotak (15%) maskiranih tokena u svakom batch-u, dok RoBERTa dinamički mijenja uzorak maskiranja za svaku epohu te tako pomaže modelu da vidi širi raspon maskiranih tokena.
 
+# API pristup i hosting modela
+Svaki model u **SentimentLab** projektu dostupan je preko različitih metoda pristupa:
+
+- **VADER**  
+Računa se lokalno na serveru putem rute [`/api/analyze.py`](./api/analyze.py), što omogućuje brzu obradu teksta bez potrebe za vanjskim servisima.
+
+- **Naivni Bayes**  
+Model je ručno treniran i u potpunosti moj vlastiti rad.  
+Pristupa mu se preko API-ja, a hostan je na [**Hugging Face Spaceu**](https://huggingface.co/spaces/maksimilijankatavic/nb-sentiment-classifier), što omogućuje jednostavno integriranje i pozivanje modela putem mreže.
+
+- **RoBERTa**  
+Korišten je pretrenirani model visoke točnosti koji se pristupa preko **Hugging Face Inference API-ja**, što omogućuje direktno korištenje moćnog transformer-based modela bez lokalnog treniranja ili hostanja.
+
 # Napomena
 Projekt je razvijen kao završni informatički rad na Prirodoslovno-matematičkom fakultetu Sveučilišta u Splitu.
