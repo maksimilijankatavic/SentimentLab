@@ -28,7 +28,7 @@ Model je ručno treniran i u potpunosti moj vlastiti rad.
 Pristupa mu se preko API-ja, a hostan je na [**Hugging Face Spaceu**](https://huggingface.co/spaces/maksimilijankatavic/nb-sentiment-classifier), što omogućuje jednostavno integriranje i pozivanje modela putem mreže.
 
 - **RoBERTa**  
-Korišten je pretrenirani model visoke točnosti koji se pristupa preko **Hugging Face Inference API-ja**, što omogućuje direktno korištenje moćnog transformer-based modela bez lokalnog treniranja ili hostanja.
+Korišten je pretrenirani model visoke točnosti koji se pristupa preko [**Hugging Face Inference API-ja**](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment), što omogućuje direktno korištenje moćnog transformer-based modela bez lokalnog treniranja ili hostanja.
 
 # Napomena
 Projekt je razvijen kao završni informatički rad na Prirodoslovno-matematičkom fakultetu Sveučilišta u Splitu.
