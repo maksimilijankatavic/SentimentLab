@@ -5,7 +5,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests
 from gradio_client import Client
 
-nb_client = Client("maksimilijankatavic/nb-sentiment-classifier")
+nb_client = Client("maksimilijankatavic/nb-sentiment-classifier", hf_token=None)
 analyzer = SentimentIntensityAnalyzer()
 
 HF_API_URL = "https://router.huggingface.co/hf-inference/models/cardiffnlp/twitter-roberta-base-sentiment"
