@@ -1,9 +1,12 @@
 from http.server import BaseHTTPRequestHandler
 import json
+import logging
 import os
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import requests
 from gradio_client import Client
+
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 nb_client = Client("maksimilijankatavic/nb-sentiment-classifier", hf_token=None)
 analyzer = SentimentIntensityAnalyzer()
