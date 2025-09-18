@@ -9,6 +9,12 @@ const SENTIMENT_COLORS = {
   neutral: "#6b7280",
 };
 
+const VADER_COLORS = {
+  positive: "#ea580c",
+  neutral: "#f97316",
+  negative: "#fdba74",
+};
+
 const ENHANCED_SENTIMENT_COLORS = {
   positive: "#10b98120",
   negative: "#ef444420",
@@ -22,13 +28,12 @@ const MODEL_DISPLAY_NAMES = {
 };
 
 const MODEL_DESCRIPTIONS = {
-  vader: "Lexicon-based approach",
-  naive_bayes: "Machine learning algorithm",
-  roberta: "Deep learning model",
+  vader: "Lexicon-based approach - Text composition analysis",
+  naive_bayes: "Machine learning algorithm - Classification probability",
+  roberta: "Deep learning model - Classification probability",
 };
 
-const RADAR_COLORS = {
-  VADER: "#f97316",
+const PROBABILITY_COLORS = {
   "Naive Bayes": "#3b82f6",
   RoBERTa: "#8b5cf6",
 };
@@ -67,12 +72,16 @@ const CustomPieTooltip = ({ active, payload }) => {
 const useProcessedData = (data) => {
   if (!data) return null;
 
-  const comparisonData = Object.entries(MODEL_DISPLAY_NAMES).map(([key, displayName]) => ({
-    model: displayName,
-    positive: data[key]?.positive || 0,
-    neutral: data[key]?.neutral || 0,
-    negative: data[key]?.negative || 0,
-    sentiment: data[key]?.sentiment || "error",
+  const vaderData = ["positive", "neutral", "negative"].map(sentiment => ({
+    sentiment: sentiment.charAt(0).toUpperCase() + sentiment.slice(1),
+    value: data.vader?.[sentiment] || 0,
+    color: VADER_COLORS[sentiment],
+  }));
+
+  const probabilityData = ["positive", "neutral", "negative"].map(sentiment => ({
+    sentiment: sentiment.charAt(0).toUpperCase() + sentiment.slice(1),
+    "Naive Bayes": data.naive_bayes?.[sentiment] || 0,
+    "RoBERTa": data.roberta?.[sentiment] || 0,
   }));
 
   const finalSentimentData = ["positive", "neutral", "negative"]
@@ -83,14 +92,7 @@ const useProcessedData = (data) => {
     }))
     .filter(item => item.value > 0);
 
-  const radarData = ["Positive", "Neutral", "Negative"].map(sentiment => ({
-    sentiment,
-    VADER: data.vader?.[sentiment.toLowerCase()] || 0,
-    "Naive Bayes": data.naive_bayes?.[sentiment.toLowerCase()] || 0,
-    RoBERTa: data.roberta?.[sentiment.toLowerCase()] || 0,
-  }));
-
-  return { comparisonData, finalSentimentData, radarData };
+  return { vaderData, probabilityData, finalSentimentData };
 };
 
 const FinalResultCard = ({ data, finalSentimentData }) => (
@@ -139,24 +141,82 @@ const FinalResultCard = ({ data, finalSentimentData }) => (
   </Card>
 );
 
-const ModelComparisonChart = ({ comparisonData }) => (
+const CustomVaderTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-700/60 rounded-lg p-3 shadow-lg">
+      {label && <p className="text-gray-200 font-medium mb-2">{label}</p>}
+      {payload.map((entry, index) => (
+        <p key={index} className="text-sm" style={{ color: "#f97316" }}>
+          {`Proportion: ${typeof entry.value === 'number' ? formatScore(entry.value) + '%' : entry.value}`}
+        </p>
+      ))}
+    </div>
+  );
+};
+
+const VaderCompositionChart = ({ vaderData }) => (
   <Card>
     <CardHeader>
-      <CardTitle className="text-gray-200">Model Comparison</CardTitle>
+      <CardTitle className="text-gray-200">VADER - Text Composition Analysis</CardTitle>
       <CardDescription className="text-muted-foreground">
-        Confidence scores across all three models
+        Proportion of positive, neutral, and negative sentiment in the text
       </CardDescription>
     </CardHeader>
     <CardContent>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={comparisonData}
+            data={vaderData}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
             <XAxis 
-              dataKey="model" 
+              dataKey="sentiment" 
+              stroke="#9ca3af"
+              tick={{ fill: '#9ca3af' }}
+            />
+            <YAxis
+              tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
+              stroke="#9ca3af"
+              tick={{ fill: '#9ca3af' }}
+            />
+            <Tooltip content={<CustomVaderTooltip />} cursor={false} />
+            <Bar
+              dataKey="value"
+              fill={(entry) => entry.color}
+              name="Proportion"
+            >
+              {vaderData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const ProbabilityComparisonChart = ({ probabilityData }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-gray-200">Classification Models - Probability Scores</CardTitle>
+      <CardDescription className="text-muted-foreground">
+        Likelihood that the entire text belongs to each sentiment category
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={probabilityData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+            <XAxis 
+              dataKey="sentiment" 
               stroke="#9ca3af"
               tick={{ fill: '#9ca3af' }}
             />
@@ -166,12 +226,12 @@ const ModelComparisonChart = ({ comparisonData }) => (
               tick={{ fill: '#9ca3af' }}
             />
             <Tooltip content={<CustomTooltip />} cursor={false} />
-            {["positive", "neutral", "negative"].map(sentiment => (
+            {Object.entries(PROBABILITY_COLORS).map(([modelName, color]) => (
               <Bar
-                key={sentiment}
-                dataKey={sentiment}
-                fill={SENTIMENT_COLORS[sentiment]}
-                name={sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
+                key={modelName}
+                dataKey={modelName}
+                fill={color}
+                name={modelName}
               />
             ))}
           </BarChart>
@@ -181,47 +241,96 @@ const ModelComparisonChart = ({ comparisonData }) => (
   </Card>
 );
 
-const RadarPerformanceChart = ({ radarData }) => (
-  <Card>
-    <CardHeader>
-      <CardTitle className="text-gray-200">Model Performance Radar</CardTitle>
-      <CardDescription className="text-muted-foreground">
-        Comparative view of all models across sentiment categories
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={radarData}>
-            <PolarGrid strokeOpacity={0.2} />
-            <PolarAngleAxis dataKey="sentiment" stroke="#9ca3af" />
-            <PolarRadiusAxis 
-              angle={30} 
-              domain={[0, 1]} 
-              tick={false}
-              axisLine={false}
-            />
-            {Object.entries(RADAR_COLORS).map(([modelName, color]) => (
-              <Radar
-                key={modelName}
-                name={modelName}
-                dataKey={modelName}
-                stroke={color}
-                fill={color}
-                fillOpacity={0.1}
-              />
-            ))}
-            <Tooltip content={<CustomTooltip />} />
-          </RadarChart>
-        </ResponsiveContainer>
-      </div>
-    </CardContent>
-  </Card>
-);
+const ModelPerformanceRadar = ({ data }) => {
+  const vaderRadarData = ["Positive", "Neutral", "Negative"].map(sentiment => ({
+    sentiment,
+    VADER: data.vader?.[sentiment.toLowerCase()] || 0,
+  }));
+
+  const probabilityRadarData = ["Positive", "Neutral", "Negative"].map(sentiment => ({
+    sentiment,
+    "Naive Bayes": data.naive_bayes?.[sentiment.toLowerCase()] || 0,
+    "RoBERTa": data.roberta?.[sentiment.toLowerCase()] || 0,
+  }));
+
+  return (
+    <div className="grid md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-gray-200">VADER Analysis Pattern</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Text composition breakdown
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={vaderRadarData}>
+                <PolarGrid strokeOpacity={0.2} />
+                <PolarAngleAxis dataKey="sentiment" stroke="#9ca3af" />
+                <PolarRadiusAxis 
+                  angle={30} 
+                  domain={[0, 1]} 
+                  tick={false}
+                  axisLine={false}
+                />
+                <Radar
+                  name="VADER"
+                  dataKey="VADER"
+                  stroke="#f97316"
+                  fill="#f97316"
+                  fillOpacity={0.2}
+                />
+                <Tooltip content={<CustomTooltip />} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-gray-200">Classification Patterns</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Model confidence comparison
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={probabilityRadarData}>
+                <PolarGrid strokeOpacity={0.2} />
+                <PolarAngleAxis dataKey="sentiment" stroke="#9ca3af" />
+                <PolarRadiusAxis 
+                  angle={30} 
+                  domain={[0, 1]} 
+                  tick={false}
+                  axisLine={false}
+                />
+                {Object.entries(PROBABILITY_COLORS).map(([modelName, color]) => (
+                  <Radar
+                    key={modelName}
+                    name={modelName}
+                    dataKey={modelName}
+                    stroke={color}
+                    fill={color}
+                    fillOpacity={0.1}
+                  />
+                ))}
+                <Tooltip content={<CustomTooltip />} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const ModelDetailCard = ({ modelKey, modelData }) => {
   const displayName = getModelDisplayName(modelKey);
   const description = MODEL_DESCRIPTIONS[modelKey];
+  const isVader = modelKey === 'vader';
 
   return (
     <Card>
@@ -248,6 +357,9 @@ const ModelDetailCard = ({ modelKey, modelData }) => {
           <p className="text-red-400">Error: {modelData.error}</p>
         ) : (
           <>
+            <div className="text-xs text-gray-400 mb-3 font-medium">
+              {isVader ? "Text Composition:" : "Classification Confidence:"}
+            </div>
             {["positive", "neutral", "negative"].map(sentiment => (
               <div key={sentiment} className="flex justify-between">
                 <span className={sentiment === "positive" ? "text-green-400" : 
@@ -259,7 +371,7 @@ const ModelDetailCard = ({ modelKey, modelData }) => {
             ))}
             {modelData?.compound !== undefined && (
               <div className="flex justify-between border-t border-gray-700 pt-2 mt-2">
-                <span className="font-semibold">Compound:</span>
+                <span className="font-semibold text-gray-300">Compound Score:</span>
                 <span
                   className={modelData.compound >= 0 ? "text-green-400" : "text-red-400"}
                 >
@@ -323,13 +435,15 @@ const SentimentResults = ({ data }) => {
   
   if (!data || !processedData) return null;
 
-  const { comparisonData, finalSentimentData, radarData } = processedData;
+  const { vaderData, probabilityData, finalSentimentData } = processedData;
 
   return (
     <div className="space-y-6 [&_.card]:bg-gray-900/40 [&_.card]:backdrop-blur-sm [&_.card]:border [&_.card]:border-gray-800/60 [&_.card]:rounded-2xl [&_.card]:shadow-lg">
       <FinalResultCard data={data} finalSentimentData={finalSentimentData} />
-      <ModelComparisonChart comparisonData={comparisonData} />
-      <RadarPerformanceChart radarData={radarData} />
+      
+      <VaderCompositionChart vaderData={vaderData} />
+      <ProbabilityComparisonChart probabilityData={probabilityData} />
+      <ModelPerformanceRadar data={data} />
       
       <div className="grid md:grid-cols-3 gap-4">
         {Object.entries(MODEL_DISPLAY_NAMES).map(([modelKey]) => (
