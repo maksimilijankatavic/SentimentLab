@@ -6,7 +6,7 @@
 **SentimentLab** nudi mogućnost analiziranja sentimenta teksta. Pruža 3 modela, a svaki od tih modela predstavlja jedan od 3 pristupa analizi sentimenta. **VADER** predstavlja leksički pristup, **Naivni Bayes** predstavlja strojno učenje (eng. *machine learning*), a **RoBERTa** predstavlja duboko učenje (eng. *deep learning*).
 
 # Stranica
-<img src="public/readme/01.png" alt="App Screenshot" width="600">
+<img src="public/readme/01.png" alt="App Screenshot">
 
 # VADER (Valance Aware Dictionary and sEntiment Reasoner)
 **VADER** koristi leksički pristup analizi sentimenta koji se temelji na rječniku riječi i njihovim emocionalnim vrijednostima. Ovaj model je osobito koristan za analizu kratkih tekstova i komentara na društvenim mrežama jer uzima u obzir specifičnosti jezika na mrežama, poput upotrebe skraćenica, interpunkcije i emotikona. VADER koristi unaprijed definirane liste riječi s određenim vrijednostima sentimenta, a zatim kombinira te vrijednosti kako bi odredio ukupni sentiment teksta. Ova vrsta pristupa se zove i bag-of-words. Iako je jednostavan, VADER je vrlo učinkovit za društvene mreže i slične tekstove.
