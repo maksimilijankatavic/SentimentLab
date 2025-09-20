@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://projekt-henna.vercel.app/favicon.ico" alt="SentimentLab" width="128" height="128">
+  <img src="public/images/icon.png" alt="SentimentLab" width="128" height="128">
 </p>
 
 # SentimentLab
