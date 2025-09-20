@@ -30,7 +30,8 @@ export const metadata = {
     "emotion detection",
     "text mining",
     "AI sentiment tool",
-    "Maksimilijan Katavić"
+    "Maksimilijan Katavić",
+    "Maksimilijan Katavic"
   ],
   authors: [{ name: "Maksimilijan Katavić" }],
   creator: "Maksimilijan Katavić",
